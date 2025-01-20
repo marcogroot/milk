@@ -27,8 +27,11 @@ basic_lex_test :: proc(t: ^testing.T) {
     testing.expect(t, len(tokens) == expected_tokens_len, "incorrect token length")
 
     for token, i in tokens {
-        log.info(token, i)
-        testing.expect(t, token == expected_tokens[i], "incorrect token")
+        assert_failed := !(token == expected_tokens[i])
+        if assert_failed {
+            log.info(i, token, expected_tokens[i])
+            testing.expect(t, false, "incorrect token")
+        }
     }
 }
 
