@@ -35,6 +35,8 @@ basic_lex_test :: proc(t: ^testing.T) {
 @(test)
 test_keywords_and_operations :: proc(t: ^testing.T) {
     input := "var if for fun == ! != < <= > >= = test ;   1234 ( ) { } [ ] . .. ? : + ++ - --"
+    //                               testing space here ^
+
     tokens := lexer.parse_file(strings.clone(input))
 
     expected_tokens_len :: 30
