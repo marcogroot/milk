@@ -177,7 +177,8 @@ get_word_token :: proc(word: ^string) -> Token {
     switch word^ {
     case "var": return Token{TokenType.VAR, word^}
     case "if": return Token{TokenType.IF, word^}
-    case "for": return Token{TokenType.VAR, word^}
+    case "for": return Token{TokenType.FOR, word^}
+    case "fun": return Token{TokenType.FUN, word^}
     }
     return Token{TokenType.NAME, word^}
 }

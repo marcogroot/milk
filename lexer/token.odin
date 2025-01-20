@@ -20,9 +20,9 @@ TokenType :: enum {
     LESS_EQUALS,
     GREATER,
     GREATER_EQUALS,
+    ASSIGNMENT,
 
     NAME,
-    ASSIGNMENT,
     SEMICOLON,
     SPACE,
     NUMBER,
