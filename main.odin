@@ -5,81 +5,107 @@ import "core:unicode/utf8"
 import "core:strings"
 import "util"
 
-IDENTIFIERS := []rune{'v', 'a', 'r', 'a', 'b', 'c'}
+IDENTIFIERS := []rune{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
+NUMBERS := []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
 KEYWORDS := []string{"var"}
 
-Token :: struct {
-    type: TokenType
-}
-
-NameToken :: struct {
-    name: string,
-    using token: Token
-}
-
-KeywordToken :: struct {
-    keyword: string,
-    using token: Token
-}
-
-TokenType :: enum {
-    KEYWORD,
-    VALUE,
-    NAME,
-    OPERATION,
-    SEMICOLON,
-}
-
 i := 0
-input_string := util.read_file("main.milk")
+input_string := "var age = 5 ;"
 input := utf8.string_to_runes(input_string)
-
-tokens := [5]Token{};
+input_length := len(input_string)
+tokens := [dynamic]Token{}
 
 main :: proc() {
-    token_index := 0
-    fmt.println(input)
+    fmt.println(input_string)
 
     curr := input[i]
-    if (is_identifier(&curr)) {
-        identifier := get_identifier()
-        if (is_keyword(identifier)) {
-            token := KeywordToken{ keyword = identifier, type = TokenType.KEYWORD }
-            tokens[token_index] = token
-        } else {
-            token := NameToken{ name = identifier, type = TokenType.VALUE }
-            tokens[token_index] = token
+
+    token : Token
+    for i < input_length {
+        curr = input[i]
+        fmt.println(curr)
+        if (is_identifier(&curr)) {
+            word := get_word()
+            token = get_word_token(&word)
+            add_token(&token)
         }
-        delete(identifier)
+        else if (is_number(&curr)) {
+            number := get_number()
+            add_token(TokenType.NUMBER, &number)
+        }
+        else if (curr == '=') {
+            add_token(TokenType.EQUALS, "=")
+            get()
+        }
+        else if (curr == ' ') {
+            add_token(TokenType.SPACE, " ")
+            get()
+        }
+        else if (curr == ';') {
+            add_token(TokenType.SEMICOLON, ";")
+            get()
+        }
+        else {
+            fmt.println("ERROR: Got unknown character: ", curr)
+            get()
+        }
     }
 
-    token_index += 1
-}
-
-is_keyword :: proc(word: string) -> bool {
-    for keyword in KEYWORDS {
-        if word == keyword {
-            return true
-        }
+    for token in tokens {
+        fmt.println(token.type, token.value)
     }
-    return false
+}
+
+add_token :: proc{add_token_with_string_pointer, add_token_symbol, add_pure_token}
+
+add_token_with_string_pointer :: proc(type: TokenType, value: ^string) {
+    append(&tokens, Token{type, value^})
+}
+
+add_token_symbol :: proc(type: TokenType, value: string) {
+    append(&tokens, Token{type, value})
+}
+
+add_pure_token :: proc(token: ^Token) {
+    append(&tokens, token^)
+}
+
+get_word_token :: proc(word: ^string) -> Token {
+    switch word^ {
+         case "var": return Token{TokenType.VAR, word^}
+    }
+    return Token{TokenType.NAME, word^}
 }
 
 
-get_identifier :: proc() -> string {
+get_word :: proc() -> string {
     start_index := i
     curr := peek()
     for is_identifier(&curr) {
         get()
         curr = peek()
     }
-    identifier, ok := strings.substring(input_string, start_index, i-1)
-    fmt.println(identifier)
+
+    identifier, ok := strings.substring(input_string, start_index, i)
     if !ok {
-        fmt.println("There was an error getting identifier between {0:d} {1:d}", start_index, i-1)
+        fmt.println("There was an error getting identifier between ", start_index, i)
     }
-    fmt.println("Got identifier %s", identifier)
     return identifier
+}
+
+get_number :: proc() -> string {
+    start_index := i
+    curr := peek()
+    for is_number(&curr) {
+        get()
+        curr = peek()
+    }
+
+    number, ok := strings.substring(input_string, start_index, i)
+    if !ok {
+        fmt.println("There was an error getting number between ", start_index, i)
+    }
+    return number
 }
 
 get :: proc() -> rune {
@@ -95,6 +121,15 @@ peek :: proc() -> rune {
 is_identifier :: proc(r: ^rune) -> bool {
     for identifier_rune in IDENTIFIERS {
         if r^ == identifier_rune {
+            return true
+        }
+    }
+    return false
+}
+
+is_number :: proc(r: ^rune) -> bool {
+    for number_rune in NUMBERS {
+        if r^ == number_rune {
             return true
         }
     }
