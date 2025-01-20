@@ -34,7 +34,43 @@ main :: proc() {
             add_token(TokenType.NUMBER, &number)
         }
         else if (curr == '=') {
-            add_token(TokenType.EQUALS, "=")
+            if peek() == '=' {
+                get()
+                add_token(TokenType.EQUALITY, "==")
+            }
+            else {
+                add_token(TokenType.ASSIGNMENT, "=")
+            }
+            get()
+        }
+        else if (curr == '!') {
+            if peek() == '=' {
+                get()
+                add_token(TokenType.NOT_EQUALS, "!=")
+            }
+            else {
+                add_token(TokenType.NOT, "!")
+            }
+            get()
+        }
+        else if (curr == '<') {
+            if peek() == '=' {
+                get()
+                add_token(TokenType.LESS_EQUALS, "<=")
+            }
+            else {
+                add_token(TokenType.LESS, "<")
+            }
+            get()
+        }
+        else if (curr == '>') {
+            if peek() == '=' {
+                get()
+                add_token(TokenType.GREATER_EQUALS, ">=")
+            }
+            else {
+                add_token(TokenType.GREATER, ">")
+            }
             get()
         }
         else if (curr == ' ') {
@@ -43,6 +79,73 @@ main :: proc() {
         }
         else if (curr == ';') {
             add_token(TokenType.SEMICOLON, ";")
+            get()
+        }
+        else if (curr == '"') {
+            str := get_string()
+            add_token(TokenType.STRING, str)
+            get()
+        }
+        else if (curr == '(') {
+            add_token(TokenType.L_PAREN, "(")
+            get()
+        }
+        else if (curr == ')') {
+            add_token(TokenType.R_PAREN, ")")
+            get()
+        }
+        else if (curr == '{') {
+            add_token(TokenType.L_CURLY, "{")
+            get()
+        }
+        else if (curr == '}') {
+            add_token(TokenType.R_CURLY, "}")
+            get()
+        }
+        else if (curr == '[') {
+            add_token(TokenType.L_SQUARE, "[")
+            get()
+        }
+        else if (curr == ']') {
+            add_token(TokenType.R_SQUARE, "]")
+            get()
+        }
+        else if (curr == '.') {
+            if peek() == '.' {
+                get()
+                add_token(TokenType.DOT_DOT, "..")
+            }
+            else {
+                add_token(TokenType.DOT, ".")
+            }
+            get()
+        }
+        else if (curr == '?') {
+            add_token(TokenType.QUESTION_MARK, "?")
+            get()
+        }
+        else if (curr == ':') {
+            add_token(TokenType.COLON, ":")
+            get()
+        }
+        else if (curr == '+') {
+            if peek() == '+' {
+                get()
+                add_token(TokenType.PLUS_PLUS, "++")
+            }
+            else {
+                add_token(TokenType.PLUS, "+")
+            }
+            get()
+        }
+        else if (curr == '-') {
+            if peek() == '-' {
+                get()
+                add_token(TokenType.MINUS_MINUS, "--")
+            }
+            else {
+                add_token(TokenType.MINUS, "-")
+            }
             get()
         }
         else {
@@ -73,6 +176,8 @@ add_pure_token :: proc(token: ^Token) {
 get_word_token :: proc(word: ^string) -> Token {
     switch word^ {
          case "var": return Token{TokenType.VAR, word^}
+         case "if": return Token{TokenType.IF, word^}
+         case "for": return Token{TokenType.VAR, word^}
     }
     return Token{TokenType.NAME, word^}
 }
@@ -80,10 +185,10 @@ get_word_token :: proc(word: ^string) -> Token {
 
 get_word :: proc() -> string {
     start_index := i
-    curr := peek()
+    curr := input[i]
     for is_identifier(&curr) {
         get()
-        curr = peek()
+        curr = input[i]
     }
 
     identifier, ok := strings.substring(input_string, start_index, i)
@@ -93,12 +198,31 @@ get_word :: proc() -> string {
     return identifier
 }
 
+get_string :: proc() -> string {
+    start_index := i
+    curr := input[i]
+    for i < input_length && curr != '"'  {
+        get()
+        curr = input[i]
+    }
+
+    if (curr != '"') {
+        fmt.println("String was not terminated, first double quote at", start_index)
+    }
+
+    str, ok := strings.substring(input_string, start_index, i)
+    if !ok {
+        fmt.println("There was an error getting string between ", start_index, i)
+    }
+    return str
+}
+
 get_number :: proc() -> string {
     start_index := i
-    curr := peek()
+    curr := input[i]
     for is_number(&curr) {
         get()
-        curr = peek()
+        curr = input[i]
     }
 
     number, ok := strings.substring(input_string, start_index, i)
@@ -115,6 +239,10 @@ get :: proc() -> rune {
 }
 
 peek :: proc() -> rune {
+    if i + 1 < input_length {
+        return input[i+1]
+    }
+    fmt.println("Reached EOF, cant peek")
     return input[i];
 }
 
