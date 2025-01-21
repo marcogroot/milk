@@ -1,2 +1,4 @@
 milk
-lexer
+lexer/lexer
+.idea
+bin
