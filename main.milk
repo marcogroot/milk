@@ -1,2 +1,41 @@
-var age = 5;
+fun main {
+    temp a = 15;
 
+    a++;
+
+    println(a)
+
+    temp b = Vector<Int>({1, 2, 3, 4, 5});
+
+    b.map {
+        it - 1;
+    }
+
+    temp c = b.mapped {
+        it + a;
+    }
+
+    println(b)
+
+    temp cat = Cat("james");
+    printCatDeets(^cat);
+}
+
+fun printCatDeets(cat: ^Cat) : Void {
+    temp cat = @cat;
+    println(cat.name)
+    println(cat.type)
+}
+
+enum CatType {
+    TABBY,
+    WHITE,
+}
+
+struct Cat {
+    name: String,
+    type: CatType = Tabby,
+    owner: Owner? = null,
+}
+
+struct Owner {}
