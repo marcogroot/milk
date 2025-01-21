@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Odin SDK">
-    <CLASSES />
-    <JAVADOC />
-    <SOURCES>
-      <root url="file://$PROJECT_DIR$/../../Odin" />
-    </SOURCES>
-  </library>
-</component>
