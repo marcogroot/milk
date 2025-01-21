@@ -10,7 +10,8 @@ import "../lexer"
 @(test)
 basic_lex_test :: proc(t: ^testing.T) {
     input := "var abc = 5;"
-    tokens := lexer.parse_file(strings.clone(input))
+    tokens := lexer.parse_file(&input)
+    delete_dynamic_array(tokens^)
 
     expected_tokens_len :: 8
     expected_tokens := [expected_tokens_len]lexer.Token{
@@ -40,7 +41,8 @@ test_keywords_and_operations :: proc(t: ^testing.T) {
     input := "var if for fun == ! != < <= > >= = test ;   1234 ( ) { } [ ] . .. ? : + ++ - --"
     //                               testing space here ^
 
-    tokens := lexer.parse_file(strings.clone(input))
+    tokens := lexer.parse_file(&input)
+    delete_dynamic_array(tokens^)
 
     expected_tokens_len :: 30
     expected_tokens := [expected_tokens_len]lexer.Token{
@@ -90,4 +92,5 @@ test_keywords_and_operations :: proc(t: ^testing.T) {
             expected_token_index += 1
         }
     }
+
 }

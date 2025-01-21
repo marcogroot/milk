@@ -18,9 +18,9 @@ input_string : string
 input_length : int
 tokens := [dynamic]Token{}
 
-parse_file :: proc(input_text: string) -> ^[dynamic]Token {
-    input = utf8.string_to_runes(input_text)
-    input_string = input_text
+parse_file :: proc(input_text: ^string) -> ^[dynamic]Token {
+    input = utf8.string_to_runes(input_text^)
+    input_string = input_text^
     input_length = len(input_string)
     tokens = {}
     fmt.println("Performing lexing on ", input_string)
@@ -160,6 +160,7 @@ parse_file :: proc(input_text: string) -> ^[dynamic]Token {
         }
     }
 
+    delete(input)
     return &tokens
 }
 
@@ -268,14 +269,3 @@ is_number :: proc(r: ^rune) -> bool {
     }
     return false
 }
-
-is_var :: proc(r: rune) -> bool {
-    identifiers := []rune{'a', 'b', 'c'}
-    for identifier_rune in identifiers {
-        if r == identifier_rune {
-            return true
-        }
-    }
-    return false
-}
-
