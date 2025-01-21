@@ -2,7 +2,9 @@ package lexer
 
 Token :: struct {
     type: TokenType,
-    value: string
+    value: string,
+    line: int,
+    line_col: int,
 }
 
 TokenType :: enum {
@@ -22,12 +24,15 @@ TokenType :: enum {
     LESS,
     LESS_EQUALS,
     MINUS,
+    MINUS_EQUALS,
     MINUS_MINUS,
     NAME,
+    NEW_LINE,
     NOT,
     NOT_EQUALS,
     NUMBER,
     PLUS,
+    PLUS_EQUALS,
     PLUS_PLUS,
     QUESTION_MARK,
     R_CURLY,

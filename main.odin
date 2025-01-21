@@ -6,6 +6,7 @@ import "core:strings"
 import "core:mem"
 import "util"
 import "lexer"
+import "parser"
 
 main :: proc() {
     track: mem.Tracking_Allocator
@@ -22,15 +23,18 @@ main :: proc() {
         mem.tracking_allocator_destroy(&track)
     }
 
-    input_string := "var age = 5;"
-    tokens := lexer.parse_file(&input_string)
+    input_string := util.read_file("milk_files/test1.milk")
+    tokens := lexer.lex(&input_string)
+    delete(input_string)
     defer(delete_dynamic_array(tokens^))
 
-    fmt.println("-----------------------------")
-    fmt.println("got tokens : ")
-    for token in tokens {
-        fmt.println(token.type, token.value)
-    }
+//    fmt.println("-----------------------------")
+//    fmt.println("got tokens : ")
+//    for token in tokens {
+//        fmt.println(token.type, token.value)
+//    }
+
+    parser.parse(tokens)
 }
 
 

@@ -13,17 +13,22 @@ IDENTIFIERS :: []rune{
 NUMBERS :: []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
 
 i : int
+line_col : int
+line : int
 input : []rune
 input_string : string
 input_length : int
 tokens := [dynamic]Token{}
 
-parse_file :: proc(input_text: ^string) -> ^[dynamic]Token {
+lex :: proc(input_text: ^string) -> ^[dynamic]Token {
+    i = 0
+    line_col = -1
+    line = 0
     input = utf8.string_to_runes(input_text^)
     input_string = input_text^
     input_length = len(input_string)
     tokens = {}
-    fmt.println("Performing lexing on ", input_string)
+    fmt.println("Performing lexing on \n", input_string)
 
     curr := input[i]
 
@@ -40,119 +45,145 @@ parse_file :: proc(input_text: ^string) -> ^[dynamic]Token {
             add_token(TokenType.NUMBER, &number)
         }
         else if (curr == '=') {
+        // keep this structur of double calling get to make sure all gets come before the token addition
+        // this keeps the line's column count consistent
             if peek() == '=' {
+                get()
                 get()
                 add_token(TokenType.EQUALITY, "==")
             }
             else {
+                get()
                 add_token(TokenType.ASSIGNMENT, "=")
             }
-            get()
         }
         else if (curr == '!') {
             if peek() == '=' {
                 get()
+                get()
                 add_token(TokenType.NOT_EQUALS, "!=")
             }
             else {
+                get()
                 add_token(TokenType.NOT, "!")
             }
-            get()
         }
         else if (curr == '<') {
             if peek() == '=' {
                 get()
+                get()
                 add_token(TokenType.LESS_EQUALS, "<=")
             }
             else {
+                get()
                 add_token(TokenType.LESS, "<")
             }
-            get()
         }
         else if (curr == '>') {
             if peek() == '=' {
                 get()
+                get()
                 add_token(TokenType.GREATER_EQUALS, ">=")
             }
             else {
+                get()
                 add_token(TokenType.GREATER, ">")
             }
-            get()
         }
         else if (curr == ' ') {
-            add_token(TokenType.SPACE, " ")
             get()
+            add_token(TokenType.SPACE, " ")
         }
         else if (curr == ';') {
-            add_token(TokenType.SEMICOLON, ";")
             get()
+            add_token(TokenType.SEMICOLON, ";")
         }
         else if (curr == '"') {
-            str := get_string()
-            add_token(TokenType.STRING, str)
             get()
+            str := get_string()
+            get()
+            add_token(TokenType.STRING, str)
         }
         else if (curr == '(') {
-            add_token(TokenType.L_PAREN, "(")
             get()
+            add_token(TokenType.L_PAREN, "(")
         }
         else if (curr == ')') {
-            add_token(TokenType.R_PAREN, ")")
             get()
+            add_token(TokenType.R_PAREN, ")")
         }
         else if (curr == '{') {
-            add_token(TokenType.L_CURLY, "{")
             get()
+            add_token(TokenType.L_CURLY, "{")
         }
         else if (curr == '}') {
-            add_token(TokenType.R_CURLY, "}")
             get()
+            add_token(TokenType.R_CURLY, "}")
         }
         else if (curr == '[') {
-            add_token(TokenType.L_SQUARE, "[")
             get()
+            add_token(TokenType.L_SQUARE, "[")
         }
         else if (curr == ']') {
-            add_token(TokenType.R_SQUARE, "]")
             get()
+            add_token(TokenType.R_SQUARE, "]")
         }
         else if (curr == '.') {
             if peek() == '.' {
                 get()
+                get()
                 add_token(TokenType.DOT_DOT, "..")
             }
             else {
+                get()
                 add_token(TokenType.DOT, ".")
             }
-            get()
         }
         else if (curr == '?') {
-            add_token(TokenType.QUESTION_MARK, "?")
             get()
+            add_token(TokenType.QUESTION_MARK, "?")
         }
         else if (curr == ':') {
-            add_token(TokenType.COLON, ":")
             get()
+            add_token(TokenType.COLON, ":")
         }
         else if (curr == '+') {
             if peek() == '+' {
                 get()
+                get()
                 add_token(TokenType.PLUS_PLUS, "++")
             }
+            if peek() == '=' {
+                get()
+                get()
+                add_token(TokenType.PLUS_EQUALS, "+=")
+            }
             else {
+                get()
                 add_token(TokenType.PLUS, "+")
             }
-            get()
         }
         else if (curr == '-') {
             if peek() == '-' {
                 get()
+                get()
                 add_token(TokenType.MINUS_MINUS, "--")
             }
+            if peek() == '=' {
+                get()
+                get()
+                add_token(TokenType.MINUS_EQUALS, "-=")
+            }
             else {
+                get()
                 add_token(TokenType.MINUS, "-")
             }
+        }
+        else if (curr == '\n') {
             get()
+            add_token(TokenType.NEW_LINE, "")
+            line += 1;
+            line_col = -1;
         }
         else {
             fmt.println("ERROR: Got unknown character: ", curr)
@@ -167,11 +198,11 @@ parse_file :: proc(input_text: ^string) -> ^[dynamic]Token {
 add_token :: proc{add_token_with_string_pointer, add_token_symbol, add_pure_token}
 
 add_token_with_string_pointer :: proc(type: TokenType, value: ^string) {
-    append(&tokens, Token{type, value^})
+    append(&tokens, Token{type, value^, line, line_col})
 }
 
 add_token_symbol :: proc(type: TokenType, value: string) {
-    append(&tokens, Token{type, value})
+    append(&tokens, Token{type, value, line, line_col})
 }
 
 add_pure_token :: proc(token: ^Token) {
@@ -180,14 +211,13 @@ add_pure_token :: proc(token: ^Token) {
 
 get_word_token :: proc(word: ^string) -> Token {
     switch word^ {
-    case "var": return Token{TokenType.VAR, word^}
-    case "if": return Token{TokenType.IF, word^}
-    case "for": return Token{TokenType.FOR, word^}
-    case "fun": return Token{TokenType.FUN, word^}
+    case "var": return Token{TokenType.VAR, word^, line, line_col}
+    case "if": return Token{TokenType.IF, word^, line, line_col}
+    case "for": return Token{TokenType.FOR, word^, line, line_col}
+    case "fun": return Token{TokenType.FUN, word^, line, line_col}
     }
-    return Token{TokenType.NAME, word^}
+    return Token{TokenType.NAME, word^, line, line_col}
 }
-
 
 get_word :: proc() -> string {
     start_index := i
@@ -241,6 +271,7 @@ get_number :: proc() -> string {
 get :: proc() -> rune {
     temp := input[i]
     i += 1;
+    line_col += 1;
     return temp;
 }
 
@@ -249,7 +280,7 @@ peek :: proc() -> rune {
         return input[i+1]
     }
     fmt.println("Reached EOF, cant peek")
-    return input[i];
+    return input[i-1];
 }
 
 is_identifier :: proc(r: ^rune) -> bool {
