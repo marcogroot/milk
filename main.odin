@@ -25,16 +25,10 @@ main :: proc() {
 
     input_string := util.read_file("milk_files/test1.milk")
     tokens := lexer.lex(&input_string)
+    parser.parse(tokens)
+
     delete(input_string)
     defer(delete_dynamic_array(tokens^))
-
-//    fmt.println("-----------------------------")
-//    fmt.println("got tokens : ")
-//    for token in tokens {
-//        fmt.println(token.type, token.value)
-//    }
-
-    parser.parse(tokens)
 }
 
 
