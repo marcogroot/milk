@@ -5,47 +5,61 @@ import "../lexer"
 
 i := 0
 tokens : ^[dynamic]lexer.Token
-nodesData := [dynamic]NodeData{}
-assignmentNodes := [dynamic]AssignmentNode{}
+nodes := [dynamic]Node{}
 
 tokens_length : int
-parse :: proc(tkns: ^[dynamic]lexer.Token) -> int {
-    defer(delete(nodesData))
-    defer(delete(assignmentNodes))
+parse :: proc(input_tokens: ^[dynamic]lexer.Token) ->  ^[dynamic]Node {
+    defer(delete(nodes))
     i = 0
-    tokens = tkns
-    tokens_length = len(tkns)
-    nodesData = {}
+    tokens = input_tokens
+    tokens_length = len(input_tokens)
+    nodes = {}
     parse_token()
 
-    for node in nodesData {
+    for node in nodes {
         fmt.println(node)
     }
 
-    return 1
+    return &nodes
 }
 
 parse_token :: proc() {
-    token := tokens[i]
+    for i < tokens_length -1 {
+        token := tokens[i]
 
-    #partial switch token.type {
-       case .VAR: parse_var()
-       case: fmt.println("Dont know how to parse")
+        #partial switch token.type {
+            case .VAR: parse_var()
+            case .NAME: parse_name()
+            case: {
+                fmt.printf("error occured during compile. Unexpected token type %s on line %d", token.type, token.line)
+                return;
+            }
+
+        }
+    }
+}
+
+parse_name ::proc() {
+    get(lexer.TokenType.NAME)
+    next_token := peek()
+
+    if (lexer.is_operation_token(&next_token)) {
+
+    }
+    else {
+        fmt.println("unexpected token when parsing ")
     }
 }
 
 parse_var :: proc() {
     get(lexer.TokenType.VAR)
-    get(lexer.TokenType.SPACE)
     name := get(lexer.TokenType.NAME).value
-    get(lexer.TokenType.SPACE)
     get(lexer.TokenType.ASSIGNMENT)
-    get(lexer.TokenType.SPACE)
     value := get(lexer.TokenType.NUMBER).value
     get(lexer.TokenType.SEMICOLON)
 
     assignmentNode := AssignmentNode{name, value}
-    add_assignment_node(&assignmentNode)
+    add_node(&assignmentNode)
     fmt.println("Assigned variable", name, "to", value)
 }
 
@@ -69,8 +83,8 @@ peek :: proc() -> lexer.Token {
     return tokens[i-1];
 }
 
-add_assignment_node :: proc(node: ^AssignmentNode) {
-    nodeData := NodeData{NodeType.ASSIGNMENT, len(assignmentNodes)}
-    append(&nodesData, nodeData)
-    append(&assignmentNodes, node^)
+add_node :: proc{add_assignment_node}
+
+add_assignment_node :: proc(assignmentNode: ^AssignmentNode) {
+    append(&nodes, assignmentNode^)
 }

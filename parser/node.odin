@@ -1,13 +1,18 @@
 package parser
 
-NodeData :: struct {
-    type: NodeType,
-    index: int,
+Node :: union {
+    AssignmentNode,
+    OperationNode,
 }
 
 AssignmentNode :: struct {
     name: string,
     value: string,
+}
+
+OperationNode :: struct {
+    left: string,
+    right: string,
 }
 
 NodeType :: enum {

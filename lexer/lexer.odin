@@ -5,13 +5,6 @@ import "core:unicode/utf8"
 import "core:strings"
 import "../util"
 
-IDENTIFIERS :: []rune{
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-}
-
-NUMBERS :: []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
-
 i : int
 line_col : int
 line : int
@@ -91,8 +84,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             }
         }
         else if (curr == ' ') {
-            get()
-            add_token(TokenType.SPACE, " ")
+            get() // don't need tokens for space or new lines
         }
         else if (curr == ';') {
             get()
@@ -180,8 +172,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             }
         }
         else if (curr == '\n') {
-            get()
-            add_token(TokenType.NEW_LINE, "")
+            get() // dont need tokens for space or newlines
             line += 1;
             line_col = -1;
         }
@@ -193,110 +184,4 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
 
     delete(input)
     return &tokens
-}
-
-add_token :: proc{add_token_with_string_pointer, add_token_symbol, add_pure_token}
-
-add_token_with_string_pointer :: proc(type: TokenType, value: ^string) {
-    append(&tokens, Token{type, value^, line, line_col})
-}
-
-add_token_symbol :: proc(type: TokenType, value: string) {
-    append(&tokens, Token{type, value, line, line_col})
-}
-
-add_pure_token :: proc(token: ^Token) {
-    append(&tokens, token^)
-}
-
-get_word_token :: proc(word: ^string) -> Token {
-    switch word^ {
-    case "var": return Token{TokenType.VAR, word^, line, line_col}
-    case "if": return Token{TokenType.IF, word^, line, line_col}
-    case "for": return Token{TokenType.FOR, word^, line, line_col}
-    case "fun": return Token{TokenType.FUN, word^, line, line_col}
-    }
-    return Token{TokenType.NAME, word^, line, line_col}
-}
-
-get_word :: proc() -> string {
-    start_index := i
-    curr := input[i]
-    for is_identifier(&curr) {
-        get()
-        curr = input[i]
-    }
-
-    identifier, ok := strings.substring(input_string, start_index, i)
-    if !ok {
-        fmt.println("There was an error getting identifier between ", start_index, i)
-    }
-    return identifier
-}
-
-get_string :: proc() -> string {
-    start_index := i
-    curr := input[i]
-    for i < input_length && curr != '"'  {
-        get()
-        curr = input[i]
-    }
-
-    if (curr != '"') {
-        fmt.println("String was not terminated, first double quote at", start_index)
-    }
-
-    str, ok := strings.substring(input_string, start_index, i)
-    if !ok {
-        fmt.println("There was an error getting string between ", start_index, i)
-    }
-    return str
-}
-
-get_number :: proc() -> string {
-    start_index := i
-    curr := input[i]
-    for is_number(&curr) {
-        get()
-        curr = input[i]
-    }
-
-    number, ok := strings.substring(input_string, start_index, i)
-    if !ok {
-        fmt.println("There was an error getting number between ", start_index, i)
-    }
-    return number
-}
-
-get :: proc() -> rune {
-    temp := input[i]
-    i += 1;
-    line_col += 1;
-    return temp;
-}
-
-peek :: proc() -> rune {
-    if i + 1 < input_length {
-        return input[i+1]
-    }
-    fmt.println("Reached EOF, cant peek")
-    return input[i-1];
-}
-
-is_identifier :: proc(r: ^rune) -> bool {
-    for identifier_rune in IDENTIFIERS {
-        if r^ == identifier_rune {
-            return true
-        }
-    }
-    return false
-}
-
-is_number :: proc(r: ^rune) -> bool {
-    for number_rune in NUMBERS {
-        if r^ == number_rune {
-            return true
-        }
-    }
-    return false
 }
