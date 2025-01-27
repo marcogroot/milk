@@ -1,20 +1,14 @@
 package parser
 
-Node :: union {
-    AssignmentNode,
-    OperationNode,
-}
-
-AssignmentNode :: struct {
-    name: string,
+Node :: struct {
+    type: NodeType,
     value: string,
-}
-
-OperationNode :: struct {
-    left: string,
-    right: string,
+    left: ^Node,
+    right: ^Node,
 }
 
 NodeType :: enum {
-    ASSIGNMENT
+    ASSIGNMENT,
+    NAME,
+    VALUE,
 }

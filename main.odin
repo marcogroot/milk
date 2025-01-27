@@ -25,10 +25,11 @@ main :: proc() {
 
     input_string := util.read_file("milk_files/test1.milk")
     tokens := lexer.lex(&input_string)
-    parser.parse(tokens)
+    ast_nodes := parser.parse(tokens)
 
     delete(input_string)
-    defer(delete_dynamic_array(tokens^))
+    delete_dynamic_array(tokens^)
+    parser.delete_nodes(ast_nodes)
 }
 
 

@@ -1,6 +1,7 @@
 package parser
 
 import "core:fmt"
+import "core:strings"
 import "../lexer"
 
 i := 0
@@ -9,18 +10,28 @@ nodes := [dynamic]Node{}
 
 tokens_length : int
 parse :: proc(input_tokens: ^[dynamic]lexer.Token) ->  ^[dynamic]Node {
-    defer(delete(nodes))
     i = 0
     tokens = input_tokens
     tokens_length = len(input_tokens)
     nodes = {}
     parse_token()
 
-    for node in nodes {
-        fmt.println(node)
-    }
-
     return &nodes
+}
+
+delete_nodes :: proc(nodes: ^[dynamic]Node) {
+    for &node in nodes {
+        recursive_free_node(&node)
+    }
+}
+
+recursive_free_node :: proc(node: ^Node) {
+    if node == nil {
+        return
+    }
+    recursive_free_node(node.left)
+    recursive_free_node(node.right)
+    free(node)
 }
 
 parse_token :: proc() {
@@ -28,13 +39,14 @@ parse_token :: proc() {
         token := tokens[i]
 
         #partial switch token.type {
-            case .VAR: parse_var()
+            case .VAR: {
+                parse_var()
+            }
             case .NAME: parse_name()
             case: {
                 fmt.printf("error occured during compile. Unexpected token type %s on line %d", token.type, token.line)
                 return;
             }
-
         }
     }
 }
@@ -53,17 +65,37 @@ parse_name ::proc() {
 
 parse_var :: proc() {
     get(lexer.TokenType.VAR)
-    name := get(lexer.TokenType.NAME).value
+    left := get_next_name()
     get(lexer.TokenType.ASSIGNMENT)
-    value := get(lexer.TokenType.NUMBER).value
+    right := get_next_value()
     get(lexer.TokenType.SEMICOLON)
 
-    assignmentNode := AssignmentNode{name, value}
+    assignmentNode := Node{type = NodeType.ASSIGNMENT, left = left, right = right}
     add_node(&assignmentNode)
-    fmt.println("Assigned variable", name, "to", value)
+    fmt.println("Assigned variable", left.value, "to", right.value)
 }
 
-get :: proc(expectedTokenType: lexer.TokenType) -> lexer.Token {
+get_next_name :: proc() -> ^Node {
+    name := get(lexer.TokenType.NAME).value
+    return new_clone(Node{NodeType.NAME, name, nil, nil})
+}
+
+get_next_value :: proc() -> ^Node {
+    token := get()
+
+    #partial switch token.type {
+        case .NUMBER: return new_clone(Node{NodeType.VALUE, token.value, nil, nil})
+        case .STRING: return new_clone(Node{NodeType.VALUE, token.value, nil, nil})
+        case: {
+            fmt.println("Unexpected token type", token.type, "getting next value")
+            panic("Got unexpected token type")
+        }
+    }
+}
+
+get :: proc{get_expected_token, get_token}
+
+get_expected_token :: proc(expectedTokenType: lexer.TokenType) -> lexer.Token {
     token := tokens[i]
 
     if (token.type != expectedTokenType) {
@@ -71,6 +103,12 @@ get :: proc(expectedTokenType: lexer.TokenType) -> lexer.Token {
         panic("Got unexpected token type")
     }
 
+    i += 1;
+    return token;
+}
+
+get_token :: proc() -> lexer.Token {
+    token := tokens[i]
     i += 1;
     return token;
 }
@@ -83,8 +121,6 @@ peek :: proc() -> lexer.Token {
     return tokens[i-1];
 }
 
-add_node :: proc{add_assignment_node}
-
-add_assignment_node :: proc(assignmentNode: ^AssignmentNode) {
-    append(&nodes, assignmentNode^)
+add_node :: proc(node: ^Node) {
+    append(&nodes, node^)
 }

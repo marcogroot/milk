@@ -13,7 +13,6 @@ NUMBERS :: []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
 
 OPERATION_TOKEN_TYPES :: []TokenType{ TokenType.PLUS_PLUS, TokenType.PLUS, TokenType.MINUS_MINUS, TokenType.MINUS}
 
-
 is_operation_token :: proc(token: ^Token) -> bool {
     for type in OPERATION_TOKEN_TYPES {
         if token.type == type {
