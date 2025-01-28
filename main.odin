@@ -7,6 +7,7 @@ import "core:mem"
 import "util"
 import "lexer"
 import "parser"
+import "tools"
 
 main :: proc() {
     track: mem.Tracking_Allocator
@@ -23,13 +24,15 @@ main :: proc() {
         mem.tracking_allocator_destroy(&track)
     }
 
-    input_string := util.read_file("milk_files/test1.milk")
+    input_string := util.read_file("milk_files/test2.milk")
     tokens := lexer.lex(&input_string)
     ast_nodes := parser.parse(tokens)
+    tools.visualise_ast(ast_nodes)
 
+
+    parser.delete_nodes(ast_nodes)
     delete(input_string)
     delete_dynamic_array(tokens^)
-    parser.delete_nodes(ast_nodes)
 }
 
 

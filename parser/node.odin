@@ -11,4 +11,7 @@ NodeType :: enum {
     ASSIGNMENT,
     NAME,
     VALUE,
+    NUMBER,
+    CALL,
+    CALLED_PARAMS,
 }

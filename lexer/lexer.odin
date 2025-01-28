@@ -21,7 +21,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
     input_string = input_text^
     input_length = len(input_string)
     tokens = {}
-    fmt.println("Performing lexing on \n", input_string)
+    fmt.println("Performing lexing on\n", input_string)
 
     curr := input[i]
 
@@ -135,6 +135,10 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             get()
             add_token(TokenType.QUESTION_MARK, "?")
         }
+        else if (curr == ',') {
+            get()
+            add_token(TokenType.COMMA, ",")
+        }
         else if (curr == ':') {
             get()
             add_token(TokenType.COLON, ":")
@@ -183,5 +187,6 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
     }
 
     delete(input)
+    fmt.println("Completed lexing")
     return &tokens
 }

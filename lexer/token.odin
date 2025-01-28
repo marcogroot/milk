@@ -10,6 +10,7 @@ Token :: struct {
 TokenType :: enum {
     ASSIGNMENT,
     COLON,
+    COMMA,
     DOT,
     DOT_DOT,
     EQUALITY,
