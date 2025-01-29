@@ -8,6 +8,7 @@ import "util"
 import "lexer"
 import "parser"
 import "tools"
+import "transpiler"
 
 main :: proc() {
     track: mem.Tracking_Allocator
@@ -27,7 +28,8 @@ main :: proc() {
     input_string := util.read_file("milk_files/test2.milk")
     tokens := lexer.lex(&input_string)
     ast_nodes := parser.parse(tokens)
-    tools.visualise_ast(ast_nodes)
+    //tools.visualise_ast(ast_nodes)
+    transpiler.interpret_ast(ast_nodes)
 
 
     parser.delete_nodes(ast_nodes)

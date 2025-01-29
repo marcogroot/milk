@@ -96,8 +96,7 @@ get_called_param_node :: proc() -> ^Node {
 
     if (tokens[i].type == lexer.TokenType.R_PAREN) {
         get(lexer.TokenType.R_PAREN)
-        right : ^Node = nil
-        return new_clone(Node{type = NodeType.CALLED_PARAMS, left = left, right = right})
+        return new_clone(Node{type = NodeType.CALLED_PARAMS, left = left, right = nil})
     }
     else {
         get(lexer.TokenType.COMMA)
