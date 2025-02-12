@@ -11,7 +11,7 @@ IDENTIFIERS :: []rune{
 
 NUMBERS :: []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
 
-OPERATION_TOKEN_TYPES :: []TokenType{ TokenType.PLUS_PLUS, TokenType.PLUS, TokenType.MINUS_MINUS, TokenType.MINUS}
+OPERATION_TOKEN_TYPES :: []TokenType{ TokenType.PLUS_PLUS, TokenType.PLUS, TokenType.MINUS_MINUS, TokenType.MINUS, TokenType.PLUS_EQUALS}
 
 is_operation_token :: proc(token: ^Token) -> bool {
     for type in OPERATION_TOKEN_TYPES {
@@ -57,6 +57,8 @@ add_pure_token :: proc(token: ^Token) {
 get_word_token :: proc(word: ^string) -> Token {
     switch word^ {
     case "var": return Token{TokenType.VAR, word^, line, line_col}
+    case "heap": return Token{TokenType.HEAP, word^, line, line_col}
+    case "temp": return Token{TokenType.TEMP, word^, line, line_col}
     case "if": return Token{TokenType.IF, word^, line, line_col}
     case "for": return Token{TokenType.FOR, word^, line, line_col}
     case "fun": return Token{TokenType.FUN, word^, line, line_col}

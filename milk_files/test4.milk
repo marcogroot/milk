@@ -1,0 +1,10 @@
+// allocate variable on stack, heap, heap and deleted at end of current scope
+var a = 5;
+heap b = 6;
+temp c = 7;
+
+// memory address
+var d = &b
+
+// dereference, get the value 'at'
+println(@d)

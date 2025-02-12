@@ -8,9 +8,11 @@ Token :: struct {
 }
 
 TokenType :: enum {
+    ADDRESS,
     ASSIGNMENT,
     COLON,
     COMMA,
+    DEREF,
     DOT,
     DOT_DOT,
     EQUALITY,
@@ -18,6 +20,7 @@ TokenType :: enum {
     FUN,
     GREATER,
     GREATER_EQUALS,
+    HEAP,
     IF,
     L_CURLY,
     L_PAREN,
@@ -35,6 +38,7 @@ TokenType :: enum {
     PLUS,
     PLUS_EQUALS,
     PLUS_PLUS,
+    POINTER,
     QUESTION_MARK,
     R_CURLY,
     R_PAREN,
@@ -42,5 +46,6 @@ TokenType :: enum {
     SEMICOLON,
     SPACE,
     STRING,
+    TEMP,
     VAR,
 }

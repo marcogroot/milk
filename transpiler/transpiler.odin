@@ -14,7 +14,7 @@ interpret_ast :: proc(nodes: ^[dynamic]parser.Node) {
     file_name := "output/milk.odin"
     temp_file, err := os.open(file_name, 2)
     if err != nil {
-        fmt.println("Error creating file:", err)
+        fmt.eprintln("Error creating file:", err)
         return
     }
     file = temp_file
@@ -35,13 +35,29 @@ write_node :: proc(node: ^parser.Node) {
     #partial switch node.type {
         case parser.NodeType.ASSIGNMENT: handle_assignment_node(node)
         case parser.NodeType.CALL: handle_function_call(node)
+        case parser.NodeType.PLUS_PLUS: handle_plus_plus(node)
+        case parser.NodeType.PLUS_EQUALS: handle_plus_equals(node)
 
         case: {
-            fmt.println("Unexpected node type", node)
+            fmt.eprintln("Unexpected node type", node)
         }
 
     }
+}
 
+handle_plus_equals :: proc(node: ^parser.Node) {
+    to_add := node.left.value;
+    func_string := [3]string {node.value, " += ", to_add}
+    str := strings.concatenate(func_string[:])
+    write(str, true)
+    return;
+}
+
+handle_plus_plus :: proc(node: ^parser.Node) {
+    func_string := [2]string {node.value, " += 1"}
+    str := strings.concatenate(func_string[:])
+    write(str, true)
+    return;
 }
 
 write :: proc(text: string, new_line: bool = false) {
@@ -52,6 +68,7 @@ write :: proc(text: string, new_line: bool = false) {
     if new_line {
         os.write_string(file, "\n")
     }
+    delete(text)
 }
 
 plain_write :: proc(text: string, new_line: bool = false) {
@@ -79,7 +96,8 @@ handle_assignment_node :: proc(node: ^parser.Node) {
     assignment_string[0] = name
     assignment_string[1] = " := "
     assignment_string[2] = value.value
-    write(strings.concatenate(assignment_string[:]), true)
+    str := strings.concatenate(assignment_string[:])
+    write(str, true)
 }
 
 FMT_FUNCTION_NAMES :: []string{
@@ -89,7 +107,8 @@ write_function :: proc(func_name: string) {
     for name in FMT_FUNCTION_NAMES {
         if name == func_name {
             func_string := [3]string {"fmt.", func_name, "("}
-            write(strings.concatenate(func_string[:]))
+            str := strings.concatenate(func_string[:])
+            write(str)
             return;
         }
     }
@@ -98,7 +117,6 @@ write_function :: proc(func_name: string) {
 }
 
 handle_parameters :: proc(node: ^parser.Node) {
-    fmt.println(node)
     if node.right == nil && node.left == nil { // no params
         plain_write(")", true)
         return

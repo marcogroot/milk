@@ -86,6 +86,14 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
         else if (curr == ' ') {
             get() // don't need tokens for space or new lines
         }
+        else if (curr == '/') {
+            if peek() == '/' {
+                get()
+                for peek() != '\n' {
+                    get()
+                }
+            }
+        }
         else if (curr == ';') {
             get()
             add_token(TokenType.SEMICOLON, ";")
@@ -120,6 +128,18 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             get()
             add_token(TokenType.R_SQUARE, "]")
         }
+        else if (curr == '@') {
+            get()
+            add_token(TokenType.DEREF, "[")
+        }
+        else if (curr == '&') {
+            get()
+            add_token(TokenType.ADDRESS, "[")
+        }
+        else if (curr == '^') {
+            get()
+            add_token(TokenType.POINTER, "[")
+        }
         else if (curr == '.') {
             if peek() == '.' {
                 get()
@@ -149,7 +169,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
                 get()
                 add_token(TokenType.PLUS_PLUS, "++")
             }
-            if peek() == '=' {
+            else if peek() == '=' {
                 get()
                 get()
                 add_token(TokenType.PLUS_EQUALS, "+=")
@@ -181,7 +201,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             line_col = -1;
         }
         else {
-            fmt.println("ERROR: Got unknown character: ", curr)
+            fmt.eprintln("ERROR: Got unknown character: ", curr)
             get()
         }
     }
