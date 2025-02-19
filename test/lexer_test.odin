@@ -15,7 +15,7 @@ basic_lex_test :: proc(t: ^testing.T) {
 
     expected_tokens_len :: 8
     expected_tokens := [expected_tokens_len]lexer.Token{
-        lexer.Token{lexer.TokenType.VAR, "var", 0, 2},
+        lexer.Token{lexer.TokenType.STACK, "var", 0, 2},
         lexer.Token{lexer.TokenType.SPACE, " ", 0, 3},
         lexer.Token{lexer.TokenType.NAME, "abc", 0, 6},
         lexer.Token{lexer.TokenType.SPACE, " ", 0, 7},
@@ -46,7 +46,7 @@ test_keywords_and_operations :: proc(t: ^testing.T) {
 
     expected_tokens_len :: 33
     expected_tokens := [expected_tokens_len]lexer.Token{
-        lexer.Token{lexer.TokenType.VAR, "var", 0, 2},
+        lexer.Token{lexer.TokenType.STACK, "var", 0, 2},
         lexer.Token{lexer.TokenType.IF, "if", 0, 5},
         lexer.Token{lexer.TokenType.FOR, "for", 0, 9},
         lexer.Token{lexer.TokenType.FUN, "fun", 0, 13},

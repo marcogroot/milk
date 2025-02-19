@@ -47,5 +47,5 @@ TokenType :: enum {
     SPACE,
     STRING,
     TEMP,
-    VAR,
+    STACK,
 }

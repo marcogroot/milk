@@ -92,6 +92,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
                 for peek() != '\n' {
                     get()
                 }
+                get()
             }
         }
         else if (curr == ';') {
@@ -130,15 +131,15 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
         }
         else if (curr == '@') {
             get()
-            add_token(TokenType.DEREF, "[")
+            add_token(TokenType.DEREF, "@")
         }
         else if (curr == '&') {
             get()
-            add_token(TokenType.ADDRESS, "[")
+            add_token(TokenType.ADDRESS, "&")
         }
         else if (curr == '^') {
             get()
-            add_token(TokenType.POINTER, "[")
+            add_token(TokenType.POINTER, "^")
         }
         else if (curr == '.') {
             if peek() == '.' {
@@ -201,7 +202,7 @@ lex :: proc(input_text: ^string) -> ^[dynamic]Token {
             line_col = -1;
         }
         else {
-            fmt.eprintln("ERROR: Got unknown character: ", curr)
+            fmt.eprintln("ERROR: Got unknown character:", curr, "line", line)
             get()
         }
     }

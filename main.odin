@@ -16,23 +16,26 @@ main :: proc() {
     context.allocator = mem.tracking_allocator(&track)
 
     defer {
-        for _, entry in track.allocation_map {
-            fmt.eprintfln("%v leaked %v bytes", entry.location, entry.size)
-        }
-        for entry in track.bad_free_array {
-            fmt.eprintfln("%v bad free", entry.location)
-        }
+//        for _, entry in track.allocation_map {
+//            fmt.eprintfln("%v leaked %v bytes", entry.location, entry.size)
+//        }
+//        for entry in track.bad_free_array {
+//            fmt.eprintfln("%v bad free", entry.location)
+//        }
         mem.tracking_allocator_destroy(&track)
     }
 
-    input_string := util.read_file("milk_files/test3.milk")
+    input_string := util.read_file("milk_files/test4.milk")
     tokens := lexer.lex(&input_string)
+    for token in tokens {
+        fmt.println(token)
+    }
     ast_nodes := parser.parse(tokens)
     //tools.visualise_ast(ast_nodes)
     transpiler.interpret_ast(ast_nodes)
 
 
-//    parser.delete_nodes(ast_nodes)
+    parser.delete_nodes(ast_nodes)
     delete(input_string)
     delete_dynamic_array(tokens^)
 }

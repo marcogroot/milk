@@ -56,7 +56,7 @@ add_pure_token :: proc(token: ^Token) {
 
 get_word_token :: proc(word: ^string) -> Token {
     switch word^ {
-    case "var": return Token{TokenType.VAR, word^, line, line_col}
+    case "stack": return Token{TokenType.STACK, word^, line, line_col}
     case "heap": return Token{TokenType.HEAP, word^, line, line_col}
     case "temp": return Token{TokenType.TEMP, word^, line, line_col}
     case "if": return Token{TokenType.IF, word^, line, line_col}

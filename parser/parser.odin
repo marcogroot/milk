@@ -36,7 +36,7 @@ recursive_free_node :: proc(node: ^Node) {
     recursive_free_node(node.left)
     recursive_free_node(node.right)
 
-    free(node)
+    //free(node)
 }
 
 parse_token :: proc() {
@@ -44,8 +44,8 @@ parse_token :: proc() {
         token := tokens[i]
 
         #partial switch token.type {
-            case .VAR: {
-                parse_var()
+            case .STACK, .TEMP, .HEAP: {
+                parse_assignment(token.type)
             }
             case .NAME: parse_name()
             case: {
@@ -126,14 +126,26 @@ get_value_node :: proc() -> ^Node {
     }
 }
 
-parse_var :: proc() {
-    get(lexer.TokenType.VAR)
+parse_assignment :: proc(token_type: lexer.TokenType) {
+    token_type_name : string
+    get(token_type)
+    #partial switch token_type {
+        case .STACK: token_type_name = "stack"
+        case .HEAP: token_type_name = "heap"
+        case .TEMP: token_type_name = "temp"
+
+    case: {
+        fmt.printfln("unexpected token for assignment parse %d", token_type)
+        return;
+        }
+    }
+
     left := get_next_name()
     get(lexer.TokenType.ASSIGNMENT)
     right := get_value_node()
     get(lexer.TokenType.SEMICOLON)
 
-    assignmentNode := new_clone(Node{type = NodeType.ASSIGNMENT, value="", left = left, right = right})
+    assignmentNode := new_clone(Node{type = NodeType.ASSIGNMENT, value=token_type_name, left = left, right = right})
     add_node(assignmentNode)
     //fmt.println("Assigned variable", left.value, "to", right.value)
 }

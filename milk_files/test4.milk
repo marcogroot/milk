@@ -1,10 +1,12 @@
 // allocate variable on stack, heap, heap and deleted at end of current scope
-var a = 5;
+stack a = 5;
 heap b = 6;
 temp c = 7;
 
 // memory address
-var d = &b
+stack d = &b
+println(d)
 
 // dereference, get the value 'at'
-println(@d)
+stack e = @d
+println(e)
