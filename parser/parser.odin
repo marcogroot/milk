@@ -4,7 +4,13 @@ import "core:fmt"
 import "core:strings"
 import "../lexer"
 
-VALUE_TOKEN_TYPES : []lexer.TokenType = {lexer.TokenType.NUMBER, lexer.TokenType.STRING, lexer.TokenType.NAME}
+VALUE_TOKEN_TYPES : []lexer.TokenType = {
+    lexer.TokenType.NUMBER,
+    lexer.TokenType.STRING,
+    lexer.TokenType.NAME,
+    lexer.TokenType.ADDRESS
+}
+
 i := 0
 tokens : ^[dynamic]lexer.Token
 nodes := [dynamic]Node{}
@@ -114,13 +120,17 @@ get_called_param_node :: proc() -> ^Node {
 
 get_value_node :: proc() -> ^Node {
     left_token := get(VALUE_TOKEN_TYPES)
-    left : ^Node
     #partial switch left_token.type {
         case .NUMBER: return new_clone(Node{type = NodeType.NUMBER, value = left_token.value})
         case .NAME, .STRING: return new_clone(Node{type = NodeType.VALUE, value = left_token.value})
+        case .ADDRESS: {
+            value := get(VALUE_TOKEN_TYPES)
+            value_node := new_clone(Node{type = NodeType.VALUE, value = value.value})
+            return new_clone(Node{type = NodeType.ADDRESS, value = left_token.value, left = value_node})
+        }
 
         case: {
-            fmt.eprintln("Unexpected param type", left_token.type, "for function call on line", left_token.line, left_token.line_col)
+            fmt.eprintln("Unexpected value", left_token.type, "line", left_token.line, left_token.line_col)
             return nil
         }
     }
@@ -161,7 +171,7 @@ get_expected_token :: proc(expectedTokenType: lexer.TokenType) -> lexer.Token {
     token := tokens[i]
 
     if (token.type != expectedTokenType) {
-        fmt.println("Expected", expectedTokenType, "got", token.type)
+        fmt.println("Expected", expectedTokenType, "got", token.type, "line:col", token.line, token.line_col)
         panic("Got unexpected token type")
     }
 
@@ -179,7 +189,7 @@ get_expected_token_with_types :: proc(expectedTokenTypes: []lexer.TokenType) -> 
         }
     }
 
-    fmt.println("Got unexpected token types", token)
+    fmt.println("Got unexpected token types. Expected one of", expectedTokenTypes, "got", token.type)
     panic("")
 }
 

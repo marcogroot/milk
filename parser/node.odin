@@ -10,6 +10,7 @@ Node :: struct {
 }
 
 NodeType :: enum {
+    ADDRESS,
     ASSIGNMENT,
     NAME,
     VALUE,

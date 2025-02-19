@@ -25,7 +25,7 @@ main :: proc() {
         mem.tracking_allocator_destroy(&track)
     }
 
-    input_string := util.read_file("milk_files/test4.milk")
+    input_string := util.read_file("milk_files/test1.milk")
     tokens := lexer.lex(&input_string)
     for token in tokens {
         fmt.println(token)
